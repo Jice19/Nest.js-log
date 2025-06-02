@@ -1,6 +1,6 @@
 # Nest.js学习
 
-## day01
+## day01：Docker &&Nest体验
 
 ### 包管理工具
 
@@ -163,19 +163,10 @@ Awesome:https://github.com/nestjs/awesome-nestjs
 **适用场景**：
 
 - 开源库、工具链、框架（如 Nest.js 官方采用 MIT）。
+
 - 希望代码被广泛使用和集成的项目。
 
-**示例**：
-
-text
-
-```
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software...
-```
+  ​
 
 ##### .Apache 2.0 许可证
 
@@ -323,6 +314,155 @@ export class UserController {
 ### 第一天小节
 
 很有意思，全新的语法以及后端思维的初步认识。controller是类似生成路由，service是逻辑方法！！！加油，坚持下去，jice19！！！
+
+
+
+## day02：配置提效
+
+
+
+### 热重载Hot Reload
+
+> 可以理解为局部更新文件，不需要重新启动服务
+
+**前端**由于需要频繁更新，自动配置热重载可以极高的提高效率
+
+**后端**虽然逻辑写好之后不需要频繁变动，但是配置热重载依旧是提高效率的方法：`nest参照官网`进行配置，按照官网配完还差一步：
+
+```
+pnpm i -D @types/webpack-env
+```
+
+这样就实现了热重载的配置
+
+
+
+### 调试配置
+
+1、创建launch.json文件(配置运行脚本以及node版本)：
+
+```
+{
+  // 使用 IntelliSense 了解相关属性。 
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name":"Launch via NPM",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run-script",
+        "start:debug"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "type": "node",
+      "runtimeVersion": "18.20.8" ,
+      "sourceMap": true
+     }
+  ]
+}
+```
+
+
+
+### IOC和DI
+
+IOC(控制反转)：是一种面向对象编程中的一种**设计模式**，用来减低计算机代码之间的耦合度。
+
+DI（依赖注入）：DI是IOC的**具体实现**，允许在类外创建依赖对象，通过不同方式给对象提供给类
+
+
+
+### Nestjs核心概念
+
+- Controller:  负责处理请求、返回响应
+
+- Service：提供方法和操作，只包含业务逻辑
+
+- Data Access：负责访问数据库中的数据
+
+  ![est核心概](assets/Nest核心概念.png)
+
+#### 生命周期
+
+![命周](assets/生命周期.png)
+
+#### 模块化
+
+- 功能模块
+- 共享模块
+- 全局模块
+- 动态模块
+
+功能模块与共享模块是一回事，只是叫法不一样
+
+全局模块通常应用在配置、数据库连接、日志上
+
+动态模块是在使用到模块的时候才初始化（懒加载）
+
+  
+
+### MVC   DTO  DAO
+
+
+
+**MVC**:模型  视图  控制器   （是一种软件架构模式）
+
+![V](assets/MVC.png)
+
+用户操作产生事件到达不同的控制器（可以理解为不同的路径），控制器传输信息给模型（处理数据库的服务）然后返回给前端视图
+
+**DTO**：数据传输对象
+
+1. ​	接收部分数据  
+2. ​	对数据进行筛选
+
+![TO和DA](assets/DTO和DAO.png)
+
+**DAO**：数据访问对象（操作数据库返回给前端）
+
+1.   DAO是一层逻辑：包含`实体类`、`数据库操作`、`数据校验`和`错误处理`等
+2. Nestjs封装了`ORM库`与类数据库对接，这些**ORM**库就是DAO层
+
+
+
+
+
+### Nestjs核心 DI容器（理解之后写无敌）
+
+1、首先是`module`模块进行一个初始化`service`服务，并且通过`providers`告诉nestjs把这个服务类初始化可以在本模块使用，
+
+通过`exports`告诉nestjs这个服务类可以在其他模块导入使用
+
+2、其次是`controller`中构造器获取DI中`已初始化的服务类`并且可以使用这个服务类
+
+
+
+### 通用后端框架
+
+#### 接口开发的核心技术
+
+- 数据校验
+- 数据库连接
+- 权限控制
+- 日志服务
+- 错误异常
+- 接口响应
+
+#### 通用后端框架思考
+
+- 从开发层面的思考：(多环境-》多配置-》配置管理与校验)
+- 从功能层面的思考：(配置、日志、数据库、权限)
+- 从接口安全的思考：(服务安全-》日志-》统计)
+
+
+
+
 
 
 
