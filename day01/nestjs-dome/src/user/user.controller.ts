@@ -17,6 +17,9 @@ export class UserController {
     console.log(db);
     console.log(host_db);
     
+    const url = this.ConfigService.get('DB_URL');
+    console.log(url);
+    
     return this.useService.getUsers();
   }
 

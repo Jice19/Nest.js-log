@@ -420,7 +420,7 @@ DI（依赖注入）：DI是IOC的**具体实现**，允许在类外创建依赖
 **DTO**：数据传输对象
 
 1. ​	接收部分数据  
-2. ​	对数据进行筛选
+	. ​	对数据进行筛选
 
 ![TO和DA](assets/DTO和DAO.png)
 
@@ -462,31 +462,255 @@ DI（依赖注入）：DI是IOC的**具体实现**，允许在类外创建依赖
 
 
 
+### 多环境配置模块（.env设置全局变量）
+
+这个配置十分重要！！！比如像`密码等私密全局变量`不能硬编码放在代码当中，需要使用单独的.env文件进行存储。这个多环境配置就是实现了.env文件的变量读取，并且可以配置自己用的是`dev或prod环境下的变量`！！！
+
+有两种多环境配置方案：`dotenv`和`config`配置，这里使用的是官方方案`config`配置
+
+1. 先下载config这个模块：
+
+   ```
+   pnpm i --save @nestjs/config@2
+   ```
+
+然后在package里面查看是否安装成功：
+
+![置查](assets/配置查看.png)
+
+2、根目录创建一个.env文件测试
+
+```
+DB=mysql
+DB_HOST=127.0.0.1
+```
+
+3、全局模块导入config
+
+```
+//app.moudule.ts
+//isClobal属性运行configModule可以其他模块引入使用
+
+import { Module } from '@nestjs/common';
+import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
+
+@Module({
+  imports: [ConfigModule.forRoot({isGlobal:true}),UserModule],
+  controllers: [],
+  providers: []
+})
+export class AppModule {}
+
+```
+
+4、接下来我们在user模块进行测试
+
+```
+//user.controller.ts
+
+import { Controller, Get, Post} from '@nestjs/common';
+import { UserService } from './user.service';
+import { ConfigService } from '@nestjs/config';
+import { ConfigEnum } from '../enum/config.enum';
+
+@Controller('user')
+export class UserController {
+
+  constructor(
+    private readonly useService: UserService,
+    private readonly ConfigService: ConfigService
+  ) {}
+  @Get('test')
+  getUsers(): any {
+    const db = this.ConfigService.get(ConfigEnum.DB)
+    const host_db = this.ConfigService.get(ConfigEnum.DB_HOST)
+    console.log(db);
+    console.log(host_db);
+    
+    return this.useService.getUsers();
+  }
+
+  @Post() 
+  postUsers(): any {
+    return this.useService.postUsers();
+  }
+
+  @Get('range')
+  postNum(): any {
+    return this.useService.postNum();
+  }
+}
+
+```
 
 
 
+启动服务，在浏览器运行localhost:3000/user/test可以实现**DB**和**HOST_DB**的打印（这种形式，我是现在 配置完成开发和生产环境的打印）
+
+![74892007829](assets/1748920078294.png)
+
+!!!这里可以注意到我的代码是使用的enum中的值实现的，使用的ts中的枚举，这样更加规范，操作如下：
+
+![74892026298](assets/1748920262985.png)
 
 
 
+```
+//config.enum.ts
+
+export enum ConfigEnum {
+  DB = 'DB',
+  DB_HOST = 'DB_HOST',
+}
+```
+
+这样就实现了配置最基本的config用法，但是在实际开发中有生产和开发两个环境，可能对应着不同的.env全局变量，那么该如何进行配置 呢？接着往下看.....
 
 
 
+5、由于config模块中的特性，可以指定启动的.env文件---使用envFilePath指定文件，接下来创建一个**.env.deve****lopment**文件，文件内容：
+
+```
+//.env.development
+
+DB=mysql-dev
+DB_HOST=127.0.0.1
+```
+
+在app.module里面新增envFilePath属性指定路径：
+
+```
+//app.module.ts
+//isClobal属性运行configModule可以其他模块引入使用
+//
+
+import { Module } from '@nestjs/common';
+import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
+
+@Module({
+  imports: [ConfigModule.forRoot({
+  		isGlobal:true,
+  		envFilePath:".env.development"
+  }),UserModule],
+  controllers: [],
+  providers: []
+})
+export class AppModule {}
+
+```
+
+再次运行可以得到**.env.development**中的变量。
+
+同理再配置**.env.production**文件并读取：
+
+```
+DB=mysql-prod
+DB_HOST=127.0.0.1
+```
+
+6、现在我们去package文件当中进行配置script命令：
+
+需要下载  
+
+```
+pnpm i -D cross-env
+```
+
+```
+"scripts": {
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "cross-env NODE_ENV=development nest build --webpack --webpackPath webpack-hmr.config.js --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "cross-env NODE_ENV=production node dist/main ",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+```
+
+这里需要注意命令中各个部分的顺序！！！
+
+继续将env路径变量改写替换：
+
+```
+envFilePath:`.env.${process.env.NODE_ENV ||'development'}`
+```
+
+现在执行不同的指令就可以实现读取不同的.env啦
+
+7、开发和生产环境肯定有共享的模块，总不能都分开重复吧？嘿嘿，这里可以使用.env共享变量，如果各自模块更新将会替换掉共享变量。使用的是`load`方法
+
+首先下载dotenv
+
+```
+pnpm i dotenv
+```
+
+再配置app.module可以实现共享
+
+```
+import { Module } from '@nestjs/common';
+import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
+import *as dotenv from 'dotenv';
+
+@Module({
+  imports: [ConfigModule.forRoot({
+    isGlobal:true,
+    envFilePath:`.env.${process.env.NODE_ENV || 'development'}`,
+    load:[() => dotenv.config({path:'.env'})]
+    
+  }),UserModule],
+  controllers: [],
+  providers: []
+})
+export class AppModule {}
+
+```
 
 
 
+8、如果用户传递的变量不符合.env中的变量要求，接下来我们就需要这些配置来进行校验（joi库）：
 
+安装joi库：
 
+```
+pnpm install --save joi
+```
 
+可以设置范围等等，参考JOI官网：
 
+```
+//app.module.ts
 
+import { Module } from '@nestjs/common';
+import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
+import *as dotenv from 'dotenv';
+import *as Joi from 'joi';
 
+@Module({
+  imports: [ConfigModule.forRoot({
+    isGlobal:true,
+    envFilePath:`.env.${process.env.NODE_ENV || 'development'}`,
+    load:[() => dotenv.config({path:'.env'})],
+    validationSchema: Joi.object({
+      DB_PORT: Joi.number().default(3306),
+    })
+  }),UserModule],
+  controllers: [],
+  providers: []
+})
+export class AppModule {}
 
-
-
-
-
-
-
+```
 
 
 
