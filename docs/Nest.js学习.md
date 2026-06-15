@@ -82,7 +82,7 @@ docker-compose up -d
 
 创建数据库并开启服务，进入localhost:8090进入登录，创建成功：
 
-![建数据库成](E:\桌面文件\Nest.js  Study-log\nest图像\创建数据库成功.png)
+![建数据库成](../assets/创建数据库成功.png)
 
 使用以下命令查看运行容器：
 
@@ -96,7 +96,7 @@ docker ps -a
 docker inspect 容器名称
 ```
 
-![ocker inspect查看容器IP地](E:\桌面文件\Nest.js  Study-log\nest图像\docker inspect查看容器IP地址.png)
+![ocker inspect查看容器IP地](../assets/docker inspect查看容器IP地址.png)
 
 
 
@@ -134,7 +134,7 @@ Awesome:https://github.com/nestjs/awesome-nestjs
 
 #### 架构
 
-![ESTful架](E:\桌面文件\Nest.js  Study-log\nest图像\RESTful架构.png)
+![ESTful架](../assets/RESTful架构.png)
 
 #### 接口文档设计
 
@@ -386,11 +386,11 @@ DI（依赖注入）：DI是IOC的**具体实现**，允许在类外创建依赖
 
 - Data Access：负责访问数据库中的数据
 
-  ![est核心概](assets/Nest核心概念.png)
+  ![est核心概](../assets/Nest核心概念.png)
 
 #### 生命周期
 
-![命周](assets/生命周期.png)
+![命周](../assets/生命周期.png)
 
 #### 模块化
 
@@ -413,7 +413,7 @@ DI（依赖注入）：DI是IOC的**具体实现**，允许在类外创建依赖
 
 **MVC**:模型  视图  控制器   （是一种软件架构模式）
 
-![V](assets/MVC.png)
+![V](../assets/MVC.png)
 
 用户操作产生事件到达不同的控制器（可以理解为不同的路径），控制器传输信息给模型（处理数据库的服务）然后返回给前端视图
 
@@ -422,7 +422,7 @@ DI（依赖注入）：DI是IOC的**具体实现**，允许在类外创建依赖
 1. ​	接收部分数据  
 	. ​	对数据进行筛选
 
-![TO和DA](assets/DTO和DAO.png)
+![TO和DA](../assets/DTO和DAO.png)
 
 **DAO**：数据访问对象（操作数据库返回给前端）
 
@@ -476,7 +476,7 @@ DI（依赖注入）：DI是IOC的**具体实现**，允许在类外创建依赖
 
 然后在package里面查看是否安装成功：
 
-![置查](assets/配置查看.png)
+![置查](../assets/配置查看.png)
 
 2、根目录创建一个.env文件测试
 
@@ -548,11 +548,11 @@ export class UserController {
 
 启动服务，在浏览器运行localhost:3000/user/test可以实现**DB**和**HOST_DB**的打印（这种形式，我是现在 配置完成开发和生产环境的打印）
 
-![74892007829](assets/1748920078294.png)
+![74892007829](../assets/1748920078294.png)
 
 !!!这里可以注意到我的代码是使用的enum中的值实现的，使用的ts中的枚举，这样更加规范，操作如下：
 
-![74892026298](assets/1748920262985.png)
+![74892026298](../assets/1748920262985.png)
 
 
 
